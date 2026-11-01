@@ -63,7 +63,7 @@ export default function RagShowcase() {
   const [flowIndex, setFlowIndex] = useState(-1)
   const [dragged, setDragged] = useState<StageId | null>(null)
   const [cursor, setCursor] = useState({ x: -100, y: -100 })
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   const [query, setQuery] = useState('Why did gross margin expand in Q3?')
   const [queryMode, setQueryMode] = useState('semantic')
   const [lastRunQuery, setLastRunQuery] = useState('Why did gross margin expand in Q3?')
