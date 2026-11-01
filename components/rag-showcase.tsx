@@ -51,6 +51,7 @@ export default function RagShowcase() {
   const [flowIndex, setFlowIndex] = useState(-1)
   const [dragged, setDragged] = useState<StageId | null>(null)
   const [cursor, setCursor] = useState({ x: -100, y: -100 })
+  const [darkMode, setDarkMode] = useState(false)
 
   useEffect(() => {
     const updateCursor = (event: PointerEvent) => setCursor({ x: event.clientX, y: event.clientY })
@@ -89,11 +90,11 @@ export default function RagShowcase() {
   function playFlow() { setFlowIndex(0); setPlaying(true); setActive(order[0]) }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
+    <main className={`min-h-screen overflow-hidden bg-background text-foreground ${darkMode ? 'dark-mode' : ''}`}>
       <div className="cursor-glow" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }} aria-hidden="true"><span /></div>
       <div className="aurora aurora-one" /><div className="aurora aurora-two" />
       <div className="site-shell">
-        <header className="topbar"><a className="brand" href="#top" aria-label="FinSight architecture home"><span className="brand-mark"><CircleDot size={16} /></span><span>FINSIGHT <em>/ RAG SYSTEM</em></span></a><div className="header-meta"><span className="status-dot" /> SYSTEM ONLINE <span className="meta-divider" /> LIVE PLAYGROUND</div></header>
+        <header className="topbar"><a className="brand" href="#top" aria-label="FinSight architecture home"><span className="brand-mark"><CircleDot size={16} /></span><span>FINSIGHT <em>/ RAG SYSTEM</em></span></a><div className="header-meta"><span className="status-dot" /> SYSTEM ONLINE <span className="meta-divider" /> LIVE PLAYGROUND <button className="theme-toggle" type="button" onClick={() => setDarkMode((value) => !value)} aria-pressed={darkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>{darkMode ? 'LIGHT' : 'DARK'} <span className="theme-switch" /></button></div></header>
 
         <section id="top" className="hero-grid hero-updated"><div className="hero-copy"><p className="kicker"><span>01</span> FINANCIAL INTELLIGENCE / SYSTEM PLAYGROUND</p><h1>Make the<br /><span>signal move.</span></h1><p className="hero-lede">Reorder the architecture, then play the pipeline. Watch a financial query travel from SEC evidence to a grounded answer.</p><a className="scroll-cue" href="#pipeline"><ArrowDown size={15} /> Enter the simulator</a></div><div className="hero-readout pulse-readout"><div className="readout-label">LIVE SYSTEM READOUT</div><div className="readout-value">RAG<span>_</span>FIN-01</div><div className="readout-rule" /><div className="readout-grid"><span>FLOW STATE</span><strong>{flowLabel}</strong><span>PIPELINE HEALTH</span><strong className={health.tone === 'bad' ? 'amber-text' : ''}>{health.value}</strong></div></div></section>
 
