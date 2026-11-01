@@ -50,6 +50,17 @@ export default function RagShowcase() {
   const [playing, setPlaying] = useState(false)
   const [flowIndex, setFlowIndex] = useState(-1)
   const [dragged, setDragged] = useState<StageId | null>(null)
+  const [cursor, setCursor] = useState({ x: -100, y: -100 })
+  const [darkMode, setDarkMode] = useState(false)
+  const [query, setQuery] = useState('Why did gross margin expand in Q3?')
+  const [queryMode, setQueryMode] = useState('semantic')
+  const [lastRunQuery, setLastRunQuery] = useState('Why did gross margin expand in Q3?')
+
+  useEffect(() => {
+    const updateCursor = (event: PointerEvent) => setCursor({ x: event.clientX, y: event.clientY })
+    window.addEventListener('pointermove', updateCursor)
+    return () => window.removeEventListener('pointermove', updateCursor)
+  }, [])
 
   useEffect(() => {
     if (!playing) return
@@ -80,12 +91,19 @@ export default function RagShowcase() {
   }
 
   function playFlow() { setFlowIndex(0); setPlaying(true); setActive(order[0]) }
+  function runQuery() {
+    const nextQuery = query.trim() || 'Untitled financial question'
+    setQuery(nextQuery)
+    setLastRunQuery(nextQuery)
+    playFlow()
+  }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
+    <main className={`min-h-screen overflow-hidden bg-background text-foreground ${darkMode ? 'dark-mode' : ''}`}>
+      <div className="cursor-glow" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }} aria-hidden="true"><span /></div>
       <div className="aurora aurora-one" /><div className="aurora aurora-two" />
       <div className="site-shell">
-        <header className="topbar"><a className="brand" href="#top" aria-label="FinSight architecture home"><span className="brand-mark"><CircleDot size={16} /></span><span>FINSIGHT <em>/ RAG SYSTEM</em></span></a><div className="header-meta"><span className="status-dot" /> SYSTEM ONLINE <span className="meta-divider" /> LIVE PLAYGROUND</div></header>
+        <header className="topbar"><a className="brand" href="#top" aria-label="FinSight architecture home"><span className="brand-mark"><CircleDot size={16} /></span><span>FINSIGHT <em>/ RAG SYSTEM</em></span></a><div className="header-meta"><span className="status-dot" /> SYSTEM ONLINE <span className="meta-divider" /> LIVE PLAYGROUND <button className="theme-toggle" type="button" onClick={() => setDarkMode((value) => !value)} aria-pressed={darkMode} aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>{darkMode ? 'LIGHT' : 'DARK'} <span className="theme-switch" /></button></div></header>
 
         <section id="top" className="hero-grid hero-updated"><div className="hero-copy"><p className="kicker"><span>01</span> FINANCIAL INTELLIGENCE / SYSTEM PLAYGROUND</p><h1>Make the<br /><span>signal move.</span></h1><p className="hero-lede">Reorder the architecture, then play the pipeline. Watch a financial query travel from SEC evidence to a grounded answer.</p><a className="scroll-cue" href="#pipeline"><ArrowDown size={15} /> Enter the simulator</a></div><div className="hero-readout pulse-readout"><div className="readout-label">LIVE SYSTEM READOUT</div><div className="readout-value">RAG<span>_</span>FIN-01</div><div className="readout-rule" /><div className="readout-grid"><span>FLOW STATE</span><strong>{flowLabel}</strong><span>PIPELINE HEALTH</span><strong className={health.tone === 'bad' ? 'amber-text' : ''}>{health.value}</strong></div></div></section>
 
@@ -97,6 +115,7 @@ export default function RagShowcase() {
         <section className="detail-section live-detail" aria-live="polite"><div className={`detail-marker marker-${activeStage.accent}`}><ActiveIcon size={18} /><span>{activeStage.step}</span></div><div className="detail-main"><p className="kicker">{flowIndex >= 0 ? 'LIVE TELEMETRY' : 'TECHNICAL EXPLANATION'}</p><h2>{activeStage.title}</h2><p>{activeStage.short}</p><div className={`outcome ${health.tone}`}><Sparkles size={14} /> {health.tone === 'good' ? activeStage.good : activeStage.bad}</div></div><div className="detail-spec"><span>IMPLEMENTATION</span><strong>{activeStage.detail}</strong><span className="spec-arrow"><Zap size={15} /> {flowIndex === order.indexOf(active) ? 'processing now' : 'hover a stage to inspect'}</span></div></section>
 
         <section className="modules-section"><div className="section-heading compact"><div><p className="kicker"><span>03</span> SYSTEM MODULES / EXPLAINED</p><h2>Built for evidence.</h2></div><p className="section-note">The canonical path is a constraint,<br />not just a visual metaphor.</p></div><div className="module-grid"><article className="module-card"><div className="module-number">01</div><div className="module-icon"><Braces size={19} /></div><h3>Data ingestion<br /><span>& chunking</span></h3><p>Parse SEC EDGAR XBRL into clean, typed facts. Preserve filing, page, and period metadata through semantic chunking.</p><div className="module-tags"><span>EDGAR</span><span>XBRL</span><span>PYTHON</span></div></article><article className="module-card"><div className="module-number">02</div><div className="module-icon amber-icon"><Layers3 size={19} /></div><h3>Vector<br /><span>embeddings</span></h3><p>Transform chunks into dense vectors and store them beside their provenance in a Supabase pgvector table.</p><div className="module-tags"><span>PGVECTOR</span><span>384D</span><span>SUPABASE</span></div></article><article className="module-card"><div className="module-number">03</div><div className="module-icon violet-icon"><Network size={19} /></div><h3>Retrieval<br /><span>& inference</span></h3><p>Expand the question, retrieve in parallel, then pass grounded context to Groq LPU and FinBERT.</p><div className="module-tags"><span>GROQ LPU</span><span>FINBERT</span><span>RERANK</span></div></article></div></section>
+        <section className="telemetry-section"><div className="section-heading compact"><div><p className="kicker"><span>04</span> OBSERVABILITY / LIVE SIGNALS</p><h2>See the system think.</h2></div><p className="section-note">Every answer leaves a trail.<br />Inspect the checks behind it.</p></div><div className="telemetry-grid"><article className="telemetry-card telemetry-wide"><div className="telemetry-card-head"><span>QUERY CONSOLE</span><span className="live-dot" /></div><label htmlFor="rag-query">TEST A FINANCIAL QUESTION</label><form className="query-row" onSubmit={(event) => { event.preventDefault(); runQuery() }}><input id="rag-query" value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Financial question" /><button type="submit" aria-label="Run query"><Play size={13} fill="currentColor" /> {playing ? 'RUNNING' : 'RUN'}</button></form><div className="query-modes">{['semantic', 'hybrid', 'strict evidence'].map((mode) => <button key={mode} type="button" className={queryMode === mode ? 'mode-active' : ''} onClick={() => setQueryMode(mode)}>{mode}</button>)}</div><p className="query-result" aria-live="polite"><Search size={14} /> {playing ? `Routing “${lastRunQuery}” through ${queryMode} retrieval…` : `“${lastRunQuery}” → ${queryMode} retrieval returned`} <strong>{playing ? 'processing live' : '8 grounded chunks'}</strong>{!playing && ' with 0.91 confidence.'}</p></article><article className="telemetry-card"><div className="telemetry-card-head"><span>RUN METRICS</span><Gauge size={15} /></div><div className="metric-list"><div><span>RETRIEVAL RECALL</span><strong>94.8%</strong></div><div><span>CONTEXT TOKENS</span><strong>3,842</strong></div><div><span>ANSWER LATENCY</span><strong>184 ms</strong></div><div><span>SENTIMENT</span><strong className="positive">POSITIVE</strong></div></div></article><article className="telemetry-card"><div className="telemetry-card-head"><span>EVIDENCE TRACE</span><Check size={15} /></div><div className="trace-list"><span><i /> 10-K / FY24 / p. 42</span><span><i /> XBRL / GrossProfit</span><span><i /> FinBERT / 0.78 positive</span><span><i /> Groq / grounded response</span></div></article></div></section>
         <footer className="footer"><span>FINSIGHT / ARCHITECTURE NOTES</span><span><Check size={14} /> SOURCE-GROUNDED BY DESIGN</span><span>© 2024 — 2025</span></footer>
       </div>
     </main>
