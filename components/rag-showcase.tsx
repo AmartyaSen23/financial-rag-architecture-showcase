@@ -50,6 +50,13 @@ export default function RagShowcase() {
   const [playing, setPlaying] = useState(false)
   const [flowIndex, setFlowIndex] = useState(-1)
   const [dragged, setDragged] = useState<StageId | null>(null)
+  const [cursor, setCursor] = useState({ x: -100, y: -100 })
+
+  useEffect(() => {
+    const updateCursor = (event: PointerEvent) => setCursor({ x: event.clientX, y: event.clientY })
+    window.addEventListener('pointermove', updateCursor)
+    return () => window.removeEventListener('pointermove', updateCursor)
+  }, [])
 
   useEffect(() => {
     if (!playing) return
@@ -83,6 +90,7 @@ export default function RagShowcase() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
+      <div className="cursor-glow" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }} aria-hidden="true"><span /></div>
       <div className="aurora aurora-one" /><div className="aurora aurora-two" />
       <div className="site-shell">
         <header className="topbar"><a className="brand" href="#top" aria-label="FinSight architecture home"><span className="brand-mark"><CircleDot size={16} /></span><span>FINSIGHT <em>/ RAG SYSTEM</em></span></a><div className="header-meta"><span className="status-dot" /> SYSTEM ONLINE <span className="meta-divider" /> LIVE PLAYGROUND</div></header>
